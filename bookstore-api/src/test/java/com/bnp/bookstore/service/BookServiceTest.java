@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -123,6 +124,19 @@ class BookServiceTest {
         verify(bookRepository, times(1)).findById(1L);
         verify(bookRepository, times(1)).save(any(Book.class));
     }
+    
+    @Test
+    @DisplayName("must return empty list when no books exist")
+    void shouldReturnEmptyListWhenNoRecordExist() {
+        when(bookRepository.findAll()).thenReturn(Collections.emptyList());
+
+        List<Book> result = bookService.findAllBooks();
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(bookRepository, times(1)).findAll();
+    }
+
 
 
 }
