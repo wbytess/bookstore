@@ -99,5 +99,30 @@ class BookServiceTest {
 
         verify(bookRepository, times(1)).deleteById(1L);
     }
+    
+    @Test
+    @DisplayName("should update existing book and return updated values")
+    void shouldUpdateBook() {
+        Book existingBook = new Book(1L, "Existing Book", "Author", 10.99);
+        Book updatedInfo = new Book(null, "Updated Name", "Updated Author", 35.40);
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(existingBook));
+
+        // Mock save method to return the updated book
+        Book savedBook = new Book(1L, "Updated Name", "Updated Author", 35.40);
+        when(bookRepository.save(any(Book.class))).thenReturn(savedBook);
+
+        // Call the service update book method
+        Book result = bookService.updateBook(1L, updatedInfo);
+
+        assertEquals(1L, result.getId());
+        assertEquals("Updated Name", result.getName());
+        assertEquals("Updated Author", result.getAuthor());
+        assertEquals(35.40, result.getPrice());
+        
+        verify(bookRepository, times(1)).findById(1L);
+        verify(bookRepository, times(1)).save(any(Book.class));
+    }
+
 
 }
