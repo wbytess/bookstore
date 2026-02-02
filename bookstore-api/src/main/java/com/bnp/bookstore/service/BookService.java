@@ -27,4 +27,8 @@ public class BookService {
     public Optional<Book> findBookById(Long bookId) {
         return bookRepository.findById(bookId);
     }
+    
+    public Book saveBook(Book book) {
+        return bookRepository.save(book);
+    }
 }

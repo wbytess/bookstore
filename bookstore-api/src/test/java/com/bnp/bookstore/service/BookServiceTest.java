@@ -1,7 +1,9 @@
 package com.bnp.bookstore.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -68,6 +70,22 @@ class BookServiceTest {
         assertEquals("Test Book1", result.get().getName());
         assertEquals(10.50, result.get().getPrice());
         verify(bookRepository, times(1)).findById(1L);
+    }
+    
+    @Test
+    @DisplayName("should save a new book and return it with generated ID")
+    void shouldSaveNewBook() {
+        Book newBook = new Book(null, "New Book1", "New Author1", 10.99);
+        Book savedBook = new Book(1L, "New Book1", "New Author1", 10.99);
+        when(bookRepository.save(any(Book.class))).thenReturn(savedBook);
+
+        Book result = bookService.saveBook(newBook);
+
+        assertNotNull(result);
+        assertNotNull(result.getId());
+        assertEquals("New Book1", result.getName());
+        assertEquals(10.99, result.getPrice());
+        verify(bookRepository, times(1)).save(any(Book.class));
     }
 
 }
