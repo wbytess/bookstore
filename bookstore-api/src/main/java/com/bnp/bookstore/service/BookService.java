@@ -35,4 +35,18 @@ public class BookService {
     public void deleteBook(Long bookId) {
         bookRepository.deleteById(bookId);
     }
+    
+    public Book updateBook(Long id, Book updatedBook) {
+
+        Book existingBook = bookRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
+
+        // update fields
+        existingBook.setName(updatedBook.getName());
+        existingBook.setAuthor(updatedBook.getAuthor());
+        existingBook.setPrice(updatedBook.getPrice());
+
+        // save updated entity
+        return bookRepository.save(existingBook);
+    }
 }
