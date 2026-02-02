@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -86,6 +88,16 @@ class BookServiceTest {
         assertEquals("New Book1", result.getName());
         assertEquals(10.99, result.getPrice());
         verify(bookRepository, times(1)).save(any(Book.class));
+    }
+    
+    @Test
+    @DisplayName("should delete a book by ID")
+    void shouldDeleteBook() {
+        doNothing().when(bookRepository).deleteById(anyLong());
+
+        bookService.deleteBook(1L);
+
+        verify(bookRepository, times(1)).deleteById(1L);
     }
 
 }
