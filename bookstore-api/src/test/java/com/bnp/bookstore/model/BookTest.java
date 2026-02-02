@@ -21,5 +21,17 @@ class BookTest {
         assertEquals("Test", book.getName());
     }
 
+    @Test
+    @DisplayName("should create a book with all columns")
+    void shouldCreateABook() {
+
+        Book book = new Book(1L, "Book1", "Author 1", 50.0);
+
+        assertEquals(1L, book.getId());
+        assertEquals("Book1", book.getName());
+        assertEquals("Author 1", book.getAuthor());
+        assertEquals(50.0, book.getPrice());
+    }
+
     
 }
