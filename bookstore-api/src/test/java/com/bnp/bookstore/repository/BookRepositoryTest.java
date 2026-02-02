@@ -72,5 +72,19 @@ class BookRepositoryTest {
 
         assertFalse(foundBook.isPresent());
     }
+    
+    @Test
+    @DisplayName("delete a book by id")
+    void shouldDeleteTheBookById() {
+        Book book = bookRepository.save(new Book(null, "Test Book", "Test Author", 10.99));
+        Long bookId = book.getId();
+        entityManager.flush();
+
+        bookRepository.deleteById(bookId);
+        entityManager.flush();
+
+        Optional<Book> bookById = bookRepository.findById(bookId);
+        assertFalse(bookById.isPresent());
+    }
 
 }
