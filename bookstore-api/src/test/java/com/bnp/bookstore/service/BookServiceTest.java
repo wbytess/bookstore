@@ -1,6 +1,7 @@
 package com.bnp.bookstore.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -137,6 +138,16 @@ class BookServiceTest {
         verify(bookRepository, times(1)).findAll();
     }
 
+    @Test
+    @DisplayName("should return false when a book is not found by book id")
+    void shouldReturnFalseWhenBookNotFoundById() {
+        when(bookRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Optional<Book> result = bookService.findBookById(1L);
+
+        assertFalse(result.isPresent());
+        verify(bookRepository, times(1)).findById(1L);
+    }
 
 
 }
