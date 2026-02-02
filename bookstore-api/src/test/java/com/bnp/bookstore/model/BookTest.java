@@ -1,6 +1,7 @@
 package com.bnp.bookstore.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,15 @@ class BookTest {
         assertEquals("Book1", book.getName());
         assertEquals("Author 1", book.getAuthor());
         assertEquals(50.0, book.getPrice());
+    }
+
+    @Test
+    @DisplayName("should not allow negative price")
+    void shouldNotAllowNegativePrice() {
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Book(1L, "Book1", "Author x", -10.0);
+        });
     }
 
     
