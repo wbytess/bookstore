@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,6 +49,19 @@ class BookRepositoryTest {
         assertEquals(2, books.size());
         assertTrue(books.stream().anyMatch(b -> b.getName().equals("Book 1")));
         assertTrue(books.stream().anyMatch(b -> b.getName().equals("Book 2")));
+    }
+    
+    @Test
+    @DisplayName("should find all books by book id")
+    void shouldFindBookById() {
+        Book book = bookRepository.save(new Book(null, "Test Book", "Test Author", 10.99));
+        entityManager.flush();
+
+        Optional<Book> bookById = bookRepository.findById(book.getId());
+
+        assertTrue(bookById.isPresent());
+        assertEquals("Test Book", bookById.get().getName());
+        assertEquals(10.99, bookById.get().getPrice());
     }
 
 }
