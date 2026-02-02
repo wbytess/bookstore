@@ -1,6 +1,7 @@
 package com.bnp.bookstore.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.DisplayName;
@@ -41,6 +42,16 @@ class BookTest {
         assertThrows(IllegalArgumentException.class, () -> {
             new Book(1L, "Book1", "Author x", -10.0);
         });
+    }
+
+    @Test
+    @DisplayName("should allow null id before persistence")
+    void shouldAllowNullId() {
+
+        Book book = new Book(null, "New Book", "New Author", 50.0);
+
+        assertNull(book.getId());
+        assertEquals("New Book", book.getName());
     }
 
     
