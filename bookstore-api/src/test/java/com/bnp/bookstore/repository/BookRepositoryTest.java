@@ -86,5 +86,20 @@ class BookRepositoryTest {
         Optional<Book> bookById = bookRepository.findById(bookId);
         assertFalse(bookById.isPresent());
     }
+    
+    @Test
+    @DisplayName("book should update")
+    void bookShouldUpdate() {
+        Book book = bookRepository.save(new Book(null, "Test Book", "Author", 10.99));
+        entityManager.flush();
+
+        book.setName("Updated Book");
+        book.setPrice(15.00);
+        Book updatedBook = bookRepository.save(book);
+        entityManager.flush();
+
+        assertEquals("Updated Book", updatedBook.getName());
+        assertEquals(15.00, updatedBook.getPrice());
+    }
 
 }
