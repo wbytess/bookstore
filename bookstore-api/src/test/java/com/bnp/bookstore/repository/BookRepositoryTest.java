@@ -1,6 +1,7 @@
 package com.bnp.bookstore.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -62,6 +63,14 @@ class BookRepositoryTest {
         assertTrue(bookById.isPresent());
         assertEquals("Test Book", bookById.get().getName());
         assertEquals(10.99, bookById.get().getPrice());
+    }
+    
+    @Test
+    @DisplayName("return false when book not found")
+    void returnEmptyWhenBookNotFound() {
+        Optional<Book> foundBook = bookRepository.findById(1L);
+
+        assertFalse(foundBook.isPresent());
     }
 
 }
