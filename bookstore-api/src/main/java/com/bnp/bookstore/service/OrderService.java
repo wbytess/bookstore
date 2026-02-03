@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bnp.bookstore.model.Order;
+import com.bnp.bookstore.model.OrderItem;
 import com.bnp.bookstore.repository.OrderRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -27,4 +28,16 @@ public class OrderService {
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
+
+	public Order saveOrder(Order order) {
+		double totalAmount = order.getOrderItems() == null ? 0.0 :
+	        order.getOrderItems().stream()
+	            .mapToDouble(OrderItem::getSubtotal)
+	            .sum();
+
+	    order.setTotalAmount(totalAmount);
+	    Order savedOrder = orderRepository.save(order);
+
+	    return savedOrder;
+	}
 }
