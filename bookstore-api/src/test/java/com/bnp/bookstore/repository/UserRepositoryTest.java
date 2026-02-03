@@ -2,6 +2,7 @@ package com.bnp.bookstore.repository;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -22,6 +23,7 @@ class UserRepositoryTest {
 	private static final String PASSWORD = "password";
 	private static final String TEST_EMAIL = "test@example.com";
 	private static final String TESTUSER = "testuser";
+	private static final String DEV_USER = "devuser";
 
 	@Autowired
     private UserRepository userRepository;
@@ -52,6 +54,17 @@ class UserRepositoryTest {
         assertEquals(TEST_EMAIL, found.get().getEmail());
     }
 
+    @Test
+    @DisplayName("given username when checking existence then true or false is returned")
+    void givenUsernameWhenCheckingExistenceThenCorrectResultIsReturned() {
+    	createUser(TESTUSER, TEST_EMAIL);
+
+        boolean exists = userRepository.existsByUsername(TESTUSER);
+        boolean notExists = userRepository.existsByUsername(DEV_USER);
+
+        assertTrue(exists);
+        assertFalse(notExists);
+    }
     
     private User createUser(String username, String email) {
         User user = new User();
