@@ -2,8 +2,10 @@ package com.bnp.bookstore.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -72,5 +74,21 @@ class OrderRepositoryTest {
 		assertEquals(2, saved.getOrderItems().get(0).getQuantity());
 		assertEquals(20.0, saved.getTotalAmount());
 	}
+	
+	@Test
+	@DisplayName("should return order by order id")
+    void shouldFindOrderById() {
+		Order order = new Order();
+        order.setTotalAmount(10.00);
+        order.setOrderDate(LocalDateTime.now());
+        
+        Order saved = orderRepository.save(order);
+        entityManager.flush();
+
+        Optional<Order> found = orderRepository.findById(saved.getId());
+
+        assertTrue(found.isPresent());
+        assertEquals(10.00, found.get().getTotalAmount());
+    }
 
 }
