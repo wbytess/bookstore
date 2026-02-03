@@ -3,6 +3,9 @@ package com.bnp.bookstore.repository;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,6 +40,16 @@ class UserRepositoryTest {
                 () -> assertEquals(TEST_EMAIL, savedUser.getEmail()),
                 () -> assertNotNull(savedUser.getCreatedAt())
         );
+    }
+    
+    @Test
+    @DisplayName("given existing email when finding user then user is returned")
+    void givenEmailThenFindingUserThenUserIsReturned() {
+        createUser(TESTUSER, TEST_EMAIL);
+        Optional<User> found = userRepository.findByEmail(TEST_EMAIL);
+
+        assertTrue(found.isPresent());
+        assertEquals(TEST_EMAIL, found.get().getEmail());
     }
 
     
