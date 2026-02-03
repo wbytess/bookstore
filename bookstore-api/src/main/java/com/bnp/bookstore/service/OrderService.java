@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bnp.bookstore.model.Order;
 import com.bnp.bookstore.model.OrderItem;
+import com.bnp.bookstore.model.OrderStatus;
 import com.bnp.bookstore.repository.OrderRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -40,4 +41,12 @@ public class OrderService {
 
 	    return savedOrder;
 	}
+	
+	public Order updateOrderStatus(Long orderId, OrderStatus status) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found with order id: " + orderId));
+
+        order.setStatus(status);
+        return orderRepository.save(order);
+    }
 }
