@@ -113,4 +113,19 @@ class OrderControllerIT {
 
         verify(orderService).getOrdersBySessionId(anyString());
     }
+
+    @Test
+    @WithMockUser
+    @DisplayName("Should retrieve all orders")
+    void shouldRetrieveAllOrders() throws Exception {
+        List<Order> orders = Arrays.asList(testOrder);
+        when(orderService.getAllOrders()).thenReturn(orders);
+
+        mockMvc.perform(get("/api/orders"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
+
+        verify(orderService).getAllOrders();
+    }
+
 }
