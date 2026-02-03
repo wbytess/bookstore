@@ -4,6 +4,7 @@ import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -42,5 +43,16 @@ public class BookController {
 		book.setId(id);
 		Book updatedBook = bookService.saveBook(book);
 		return ResponseEntity.ok(updatedBook);
+	}
+	
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
+
+		if (bookService.findBookById(id).isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+
+		bookService.deleteBook(id);
+		return ResponseEntity.noContent().build();
 	}
 }
