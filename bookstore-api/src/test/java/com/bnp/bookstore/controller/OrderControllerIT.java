@@ -33,6 +33,7 @@ class OrderControllerIT {
 
     private static final String SESSION_ID = "session1010";
     private static final Long ORDER_ID = 1L;
+    private static final Long INVALID_ORDER_ID = 12L;
     private static final double ORDER_TOTAL = 7.25;
 
     @Autowired
@@ -82,6 +83,16 @@ class OrderControllerIT {
                 .andExpect(jsonPath("$.totalAmount").value(ORDER_TOTAL));
 
         verify(orderService).getOrderById(ORDER_ID);
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("Should return 404 when order does not exist")
+    void shouldReturnNotFoundForMissingOrder() throws Exception {
+        when(orderService.getOrderById(INVALID_ORDER_ID)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/orders/" + INVALID_ORDER_ID))
+                .andExpect(status().isNotFound());
     }
 
 }
