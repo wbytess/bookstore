@@ -78,6 +78,17 @@ class UserRepositoryTest {
         assertTrue(exists);
         assertFalse(notExists);
     }
+    
+    @Test
+    @DisplayName("given existing username when finding user then user is returned")
+    void givenUsernameWhenFindingUserThenUserIsReturned() {
+    	createUser(TESTUSER, TEST_EMAIL);
+        Optional<User> found = userRepository.findByUsername(TESTUSER);
+
+        assertTrue(found.isPresent());
+        assertEquals(TESTUSER, found.get().getUsername());
+    }
+    
     private User createUser(String username, String email) {
         User user = new User();
         user.setUsername(username);
