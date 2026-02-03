@@ -30,6 +30,12 @@ public class Order {
     @Column(nullable = false)
     private OrderStatus status;
     
+    @Column(name = "session_id", nullable = false)
+    private String sessionId;
+    
+    @Column(name = "user_id")
+    private Long userId;
+    
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OrderItem> orderItems = new ArrayList<>();
 

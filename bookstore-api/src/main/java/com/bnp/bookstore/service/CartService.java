@@ -1,5 +1,6 @@
 package com.bnp.bookstore.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,8 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bnp.bookstore.model.Book;
 import com.bnp.bookstore.model.CartItem;
+import com.bnp.bookstore.model.Order;
+import com.bnp.bookstore.model.OrderItem;
+import com.bnp.bookstore.model.OrderStatus;
 import com.bnp.bookstore.repository.BookRepository;
 import com.bnp.bookstore.repository.CartRepository;
+import com.bnp.bookstore.repository.OrderRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +26,7 @@ public class CartService {
     private static final String ITEM_IN_THE_CART_NOT_FOUND_WITH_ID = "Item in the cart not found with id: ";
 	private final CartRepository cartRepository;
 	private final BookRepository bookRepository;
+	private final OrderRepository orderRepository;
 
     @Transactional(readOnly = true)
     public List<CartItem> getCartItems(String sessionId) {
@@ -68,5 +74,45 @@ public class CartService {
         CartItem newCartItem = new CartItem(null, book, quantity, sessionId);
         return cartRepository.save(newCartItem);
     }
+    
+    public Order placeOrderFromCart(String sessionId, Long userId) {
+        List<CartItem> cartItems = cartRepository.findBySessionId(sessionId);
+
+        if (cartItems.isEmpty()) {
+            throw new RuntimeException("Order failed: no items found in the cart for this session.");
+        }
+
+        Order order = getOrderObject(sessionId, userId);
+
+        for (CartItem cartItem : cartItems) {
+            order.getOrderItems().add(mapToOrderItem(cartItem, order));
+        }
+
+        order.setTotalAmount(order.calculateTotalOrderPrice());
+        Order savedOrder = orderRepository.save(order);
+        cartRepository.deleteBySessionId(sessionId);
+
+        return savedOrder;
+    }
+
+    private OrderItem mapToOrderItem(CartItem cartItem, Order order) {
+        OrderItem orderItem = new OrderItem();
+        orderItem.setOrder(order);
+        orderItem.setBook(cartItem.getBook());
+        orderItem.setQuantity(cartItem.getQuantity());
+        return orderItem;
+    }
+
+
+	private Order getOrderObject(String sessionId, Long userId) {
+		Order order = new Order();
+        order.setSessionId(sessionId);
+        order.setUserId(userId);
+        order.setStatus(OrderStatus.PENDING);
+        order.setOrderDate(LocalDateTime.now());
+		return order;
+	}
+
+
 
 }
