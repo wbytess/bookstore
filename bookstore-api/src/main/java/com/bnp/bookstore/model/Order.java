@@ -40,7 +40,7 @@ public class Order {
 
     public Double calculateTotalOrderPrice() {
         return orderItems.stream()
-                .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                .mapToDouble(item -> item.getBook().getPrice() * item.getQuantity())
                 .sum();
     }
     

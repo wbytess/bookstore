@@ -29,10 +29,7 @@ public class OrderItem {
     @Column(nullable = false)
     private Integer quantity;
 
-    @Column(nullable = false)
-    private Double price;
-
     public Double getSubtotal() {
-        return price * quantity;
+        return book.getPrice() * quantity;
     }
 }
