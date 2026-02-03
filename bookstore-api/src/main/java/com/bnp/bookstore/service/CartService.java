@@ -75,44 +75,4 @@ public class CartService {
         return cartRepository.save(newCartItem);
     }
     
-    public Order placeOrderFromCart(String sessionId, Long userId) {
-        List<CartItem> cartItems = cartRepository.findBySessionId(sessionId);
-
-        if (cartItems.isEmpty()) {
-            throw new RuntimeException("Order failed: no items found in the cart for this session.");
-        }
-
-        Order order = getOrderObject(sessionId, userId);
-
-        for (CartItem cartItem : cartItems) {
-            order.getOrderItems().add(mapToOrderItem(cartItem, order));
-        }
-
-        order.setTotalAmount(order.calculateTotalOrderPrice());
-        Order savedOrder = orderRepository.save(order);
-        cartRepository.deleteBySessionId(sessionId);
-
-        return savedOrder;
-    }
-
-    private OrderItem mapToOrderItem(CartItem cartItem, Order order) {
-        OrderItem orderItem = new OrderItem();
-        orderItem.setOrder(order);
-        orderItem.setBook(cartItem.getBook());
-        orderItem.setQuantity(cartItem.getQuantity());
-        return orderItem;
-    }
-
-
-	private Order getOrderObject(String sessionId, Long userId) {
-		Order order = new Order();
-        order.setSessionId(sessionId);
-        order.setUserId(userId);
-        order.setStatus(OrderStatus.PENDING);
-        order.setOrderDate(LocalDateTime.now());
-		return order;
-	}
-
-
-
 }
