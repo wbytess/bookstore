@@ -46,5 +46,29 @@ class OrderTest {
         
         assertEquals(20, order.calculateTotalOrderPrice(), 0.01);
     }
+    
+    @Test
+    @DisplayName("should calculate total price for an order with items each item have two books")
+    void shouldCalculateTotalPriceForAnOrderWithTwoItems() {
+    	
+    	Book book = new Book(1L, "New Book", "Author", 10.00);
+        OrderItem item = new OrderItem();
+        item.setBook(book);
+        item.setQuantity(2);
+        
+        Book cleanCode = new Book(1L, "Clean Code", "Clean Code Author", 7.25);
+        OrderItem itemTwo = new OrderItem();
+        itemTwo.setBook(cleanCode);
+        itemTwo.setQuantity(2);
+
+        List<OrderItem> items = new ArrayList<>();
+        items.add(item);
+        items.add(itemTwo);
+
+        Order order = new Order();
+        order.setOrderItems(items);
+        
+        assertEquals(34.50, order.calculateTotalOrderPrice(), 0.01);//(10*2) +(7.25*2) =34.50
+    }
 
 }
