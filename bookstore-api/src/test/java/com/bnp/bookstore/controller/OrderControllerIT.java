@@ -5,11 +5,13 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -66,6 +68,20 @@ class OrderControllerIT {
                 .andExpect(jsonPath("$.status").value("PENDING"));
 
         verify(orderService).placeOrder(anyString(), any());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("Should retrieve an order by ID")
+    void shouldRetrieveOrderById() throws Exception {
+        when(orderService.getOrderById(ORDER_ID)).thenReturn(Optional.of(testOrder));
+
+        mockMvc.perform(get("/api/orders/" + ORDER_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(ORDER_ID))
+                .andExpect(jsonPath("$.totalAmount").value(ORDER_TOTAL));
+
+        verify(orderService).getOrderById(ORDER_ID);
     }
 
 }
