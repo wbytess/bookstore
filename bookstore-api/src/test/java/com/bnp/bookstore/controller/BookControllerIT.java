@@ -2,8 +2,6 @@ package com.bnp.bookstore.controller;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -31,6 +29,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import com.bnp.bookstore.model.Book;
 import com.bnp.bookstore.service.BookService;
@@ -39,125 +38,131 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @WebMvcTest(BookController.class)
 @AutoConfigureMockMvc
 class BookControllerIT {
+	
+	private static final String BASE_API = "/api/books";
 
-    @Autowired
-    private MockMvc mockMvc;
+	private static final Long BOOK_ID_1 = 1L;
+	private static final Long BOOK_ID_2 = 2L;
 
-    @MockBean
-    private BookService bookService;
+	private static final String NEW_BOOK_NAME = "New Book";
+	private static final String NEW_BOOK_AUTHOR = "New Author";
+	private static final double NEW_BOOK_PRICE = 10.50;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-    
-    private Book testBook;
-    private Book testBook2;
+	private static final String NEW_BOOK2_NAME = "New Book2";
+	private static final String NEW_BOOK2_AUTHOR = "New Author2";
+	private static final double NEW_BOOK2_PRICE = 12.50;
 
-    @BeforeEach
-    void setUp() {
-    	testBook = new Book(1L,"New Book", "New Author", 10.50);
-    	testBook2 = new Book(2L,"New Book2", "New Author2", 12.50);
-    }
+	private static final String UPDATED_BOOK_NAME = "Updated Name";
+	private static final String UPDATED_BOOK_AUTHOR = "Updated Author";
+	private static final double UPDATED_BOOK_PRICE = 59.99;
 
-    @Test
-    @WithMockUser
-    @DisplayName("should create book and return 201 with book payload")
-    void shouldCreateBookAndReturn201() throws Exception {
+	private static final String JSON_ID = "$.id";
+	private static final String JSON_NAME = "$.name";
+	private static final String JSON_AUTHOR = "$.author";
+	private static final String JSON_PRICE = "$.price";
+	
+	@Autowired
+	private MockMvc mockMvc;
 
-        // given
-        Book requestBook = new Book(null, "New Book", "New Author", 10.50);
-        Book savedBook = new Book(1L, "New Book", "New Author", 10.50);
+	@MockBean
+	private BookService bookService;
 
-        when(bookService.saveBook(any(Book.class))).thenReturn(savedBook);
+	@Autowired
+	private ObjectMapper objectMapper;
 
-        // when + then
-        mockMvc.perform(post("/api/books")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestBook)))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.name").value("New Book"))
-                .andExpect(jsonPath("$.author").value("New Author"))
-                .andExpect(jsonPath("$.price").value(10.50));
+	private Book testBook1;
+	private Book testBook2;
+	
+	@BeforeEach
+	void setUp() {
+		testBook1 = buildBook(BOOK_ID_1, NEW_BOOK_NAME, NEW_BOOK_AUTHOR, NEW_BOOK_PRICE);
+		testBook2 = buildBook(BOOK_ID_2, NEW_BOOK2_NAME, NEW_BOOK2_AUTHOR, NEW_BOOK2_PRICE);
+	}
 
-        verify(bookService).saveBook(any(Book.class));
-    }
-    
-    @Test
-    @WithMockUser
-    @DisplayName("should update existing book and return updated book")
-    void shouldUpdateBook() throws Exception {
+	private Book buildBook(Long id, String name, String author, double price) {
+		return new Book(id, name, author, price);
+	}
 
-        Book updatedBook = new Book(1L, "Updated Name", "Updated Author", 59.99);
-        when(bookService.saveBook(any(Book.class))).thenReturn(updatedBook);
+	private Book buildNewBook() {
+		return buildBook(null, NEW_BOOK_NAME, NEW_BOOK_AUTHOR, NEW_BOOK_PRICE);
+	}
 
-        mockMvc.perform(put("/api/books/1")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedBook)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("Updated Name"))
-                .andExpect(jsonPath("$.author").value("Updated Author"))
-                .andExpect(jsonPath("$.price").value(59.99));
+	private Book buildUpdatedBook() {
+		return buildBook(BOOK_ID_1, UPDATED_BOOK_NAME, UPDATED_BOOK_AUTHOR, UPDATED_BOOK_PRICE);
+	}
 
-        verify(bookService, times(1)).saveBook(any(Book.class));
-    }
+	private void assertBookJson(ResultActions result, Book book) throws Exception {
+		result.andExpect(jsonPath(JSON_ID).value(book.getId())).andExpect(jsonPath(JSON_NAME).value(book.getName()))
+				.andExpect(jsonPath(JSON_AUTHOR).value(book.getAuthor()))
+				.andExpect(jsonPath(JSON_PRICE).value(book.getPrice()));
+	}
 
-    @Test
-    @WithMockUser
-    @DisplayName("should return 404 when deleting non-existent book")
-    void shouldReturn404WhenBookNotFound() throws Exception {
-        Long bookId = 2L;
+	@Test
+	@WithMockUser
+	@DisplayName("Create a new book and return 201 with book payload")
+	void createBook_ShouldReturnCreated() throws Exception {
+		Book requestBook = buildNewBook();
+		Book savedBook = testBook1;
 
-        // Mock service to return empty (book not found)
-        when(bookService.findBookById(bookId)).thenReturn(Optional.empty());
+		when(bookService.saveBook(any(Book.class))).thenReturn(savedBook);
 
-        mockMvc.perform(delete("/api/books/{id}", bookId).with(csrf()))
-                .andExpect(status().isNotFound());
+		ResultActions result = mockMvc
+				.perform(post(BASE_API).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(requestBook)))
+				.andExpect(status().isCreated()).andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
-        verify(bookService).findBookById(bookId);
-        verify(bookService, never()).deleteBook(any());
-    }
-    
-    @Test
-    @WithMockUser
-    @DisplayName("should return book by book id")
-    void shouldReturnBookById() throws Exception {
+		assertBookJson(result, savedBook);
+		verify(bookService).saveBook(any(Book.class));
+	}
 
-        when(bookService.findBookById(1L)).thenReturn(Optional.of(testBook));
+	@Test
+	@WithMockUser
+	@DisplayName("Update existing book and return updated book")
+	void updateBook_ShouldReturnUpdatedBook() throws Exception {
+		Book updatedBook = buildUpdatedBook();
+		when(bookService.saveBook(any(Book.class))).thenReturn(updatedBook);
 
-        mockMvc.perform(get("/api/books/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("New Book"))
-                .andExpect(jsonPath("$.author").value("New Author"))
-                .andExpect(jsonPath("$.price").value(10.50));
+		ResultActions result = mockMvc.perform(put(BASE_API + "/{id}", BOOK_ID_1).with(csrf())
+				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(updatedBook)))
+				.andExpect(status().isOk());
 
-        verify(bookService, times(1)).findBookById(1L);
-    }
+		assertBookJson(result, updatedBook);
+		verify(bookService, times(1)).saveBook(any(Book.class));
+	}
 
-    @Test
-    @WithMockUser
-    @DisplayName("should return all available books")
-    void shouldReturnAllBooks() throws Exception {
+	@Test
+	@WithMockUser
+	@DisplayName("Return 404 when deleting non-existent book")
+	void deleteNonExistentBook_ShouldReturn404() throws Exception {
+		when(bookService.findBookById(BOOK_ID_2)).thenReturn(Optional.empty());
 
-        List<Book> books = Arrays.asList(testBook, testBook2);
-        when(bookService.findAllBooks()).thenReturn(books);
+		mockMvc.perform(delete(BASE_API + "/{id}", BOOK_ID_2).with(csrf())).andExpect(status().isNotFound());
 
-        mockMvc.perform(get("/api/books"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("New Book"))
-                .andExpect(jsonPath("$[0].author").value("New Author"))
-                .andExpect(jsonPath("$[0].price").value(10.50))
-                .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].name").value("New Book2"))
-                .andExpect(jsonPath("$[1].author").value("New Author2"));
-        
+		verify(bookService).findBookById(BOOK_ID_2);
+		verify(bookService, never()).deleteBook(any());
+	}
 
-        verify(bookService, times(1)).findAllBooks();
-    }
+	@Test
+	@WithMockUser
+	@DisplayName("Return book by its ID")
+	void getBookById_ShouldReturnBook() throws Exception {
+		when(bookService.findBookById(BOOK_ID_1)).thenReturn(Optional.of(testBook1));
+
+		ResultActions result = mockMvc.perform(get(BASE_API + "/{id}", BOOK_ID_1)).andExpect(status().isOk());
+
+		assertBookJson(result, testBook1);
+		verify(bookService, times(1)).findBookById(BOOK_ID_1);
+	}
+
+	@Test
+	@WithMockUser
+	@DisplayName("Return all available books")
+	void getAllBooks_ShouldReturnList() throws Exception {
+		List<Book> books = Arrays.asList(testBook1, testBook2);
+		when(bookService.findAllBooks()).thenReturn(books);
+
+		mockMvc.perform(get(BASE_API)).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)));
+
+		verify(bookService, times(1)).findAllBooks();
+	}
 }
