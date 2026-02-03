@@ -1,6 +1,7 @@
 package com.bnp.bookstore.controller;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -64,4 +65,9 @@ public class BookController {
 	            .orElse(ResponseEntity.notFound().build());
 	}
 
+	@GetMapping
+	public ResponseEntity<List<Book>> findAllBooks() {
+		List<Book> books = bookService.findAllBooks();
+		return ResponseEntity.ok(books);
+	}
 }
