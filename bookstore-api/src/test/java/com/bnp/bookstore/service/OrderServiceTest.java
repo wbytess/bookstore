@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -20,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.bnp.bookstore.model.Book;
 import com.bnp.bookstore.model.Order;
 import com.bnp.bookstore.model.OrderItem;
+import com.bnp.bookstore.model.OrderStatus;
 import com.bnp.bookstore.repository.OrderRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -81,5 +83,22 @@ class OrderServiceTest {
         assertEquals(2, saved.getOrderItems().get(0).getQuantity());
         assertEquals(20.0, saved.getTotalAmount());
 	}
+	
+	@Test
+	@DisplayName("should update the order status from PENDING to COMPLETED")
+    void shouldUpdateOrderStatus() {
+
+        Order order = new Order();
+        order.setId(1L);
+        order.setStatus(OrderStatus.PENDING);
+
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Order result = orderService.updateOrderStatus(1L, OrderStatus.COMPLETED);
+
+        assertEquals(OrderStatus.COMPLETED, result.getStatus());
+        verify(orderRepository).save(order);
+    }
 
 }
