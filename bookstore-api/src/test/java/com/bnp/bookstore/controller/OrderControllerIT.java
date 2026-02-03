@@ -3,11 +3,13 @@ package com.bnp.bookstore.controller;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -128,4 +130,35 @@ class OrderControllerIT {
         verify(orderService).getAllOrders();
     }
 
+    @Test
+    @WithMockUser
+    @DisplayName("Should update the status of an order")
+    void shouldUpdateOrderStatus() throws Exception {
+        testOrder.setStatus(OrderStatus.COMPLETED);
+        when(orderService.updateOrderStatus(eq(ORDER_ID), eq(OrderStatus.COMPLETED)))
+                .thenReturn(testOrder);
+
+        mockMvc.perform(put("/api/orders/" + ORDER_ID + "/status")
+                        .with(csrf())
+                        .param("status", "COMPLETED"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("COMPLETED"));
+
+        verify(orderService).updateOrderStatus(ORDER_ID, OrderStatus.COMPLETED);
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("Should cancel an order")
+    void shouldCancelOrder() throws Exception {
+        testOrder.setStatus(OrderStatus.CANCELLED);
+        when(orderService.updateOrderStatus(ORDER_ID, OrderStatus.CANCELLED)).thenReturn(testOrder);
+
+        mockMvc.perform(put("/api/orders/" + ORDER_ID + "/cancel")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CANCELLED"));
+
+        verify(orderService).updateOrderStatus(ORDER_ID, OrderStatus.CANCELLED);
+    }
 }
