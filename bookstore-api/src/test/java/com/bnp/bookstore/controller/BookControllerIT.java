@@ -1,5 +1,6 @@
 package com.bnp.bookstore.controller;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
@@ -16,6 +17,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -47,10 +50,12 @@ class BookControllerIT {
     private ObjectMapper objectMapper;
     
     private Book testBook;
+    private Book testBook2;
 
     @BeforeEach
     void setUp() {
     	testBook = new Book(1L,"New Book", "New Author", 10.50);
+    	testBook2 = new Book(2L,"New Book2", "New Author2", 12.50);
     }
 
     @Test
@@ -133,5 +138,26 @@ class BookControllerIT {
         verify(bookService, times(1)).findBookById(1L);
     }
 
+    @Test
+    @WithMockUser
+    @DisplayName("should return all available books")
+    void shouldReturnAllBooks() throws Exception {
 
+        List<Book> books = Arrays.asList(testBook, testBook2);
+        when(bookService.findAllBooks()).thenReturn(books);
+
+        mockMvc.perform(get("/api/books"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("New Book"))
+                .andExpect(jsonPath("$[0].author").value("New Author"))
+                .andExpect(jsonPath("$[0].price").value(10.50))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].name").value("New Book2"))
+                .andExpect(jsonPath("$[1].author").value("New Author2"));
+        
+
+        verify(bookService, times(1)).findAllBooks();
+    }
 }
