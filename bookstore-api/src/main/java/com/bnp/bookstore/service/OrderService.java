@@ -21,75 +21,82 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class OrderService {
 
-    private final OrderRepository orderRepository;
+	private final OrderRepository orderRepository;
 
-    private final CartRepository cartRepository;
-    
-    @Transactional(readOnly = true)
-    public Optional<Order> getOrderById(Long orderId) {
-        return orderRepository.findById(orderId);
-    }
+	private final CartRepository cartRepository;
 
-    @Transactional(readOnly = true)
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
-    }
+	@Transactional(readOnly = true)
+	public Optional<Order> getOrderById(Long orderId) {
+		return orderRepository.findById(orderId);
+	}
+
+	@Transactional(readOnly = true)
+	public List<Order> getAllOrders() {
+		return orderRepository.findAll();
+	}
 
 	public Order saveOrder(Order order) {
-		double totalAmount = order.getOrderItems() == null ? 0.0 :
-	        order.getOrderItems().stream()
-	            .mapToDouble(OrderItem::getSubtotal)
-	            .sum();
+		double totalAmount = order.getOrderItems() == null ? 0.0
+				: order.getOrderItems().stream().mapToDouble(OrderItem::getSubtotal).sum();
 
-	    order.setTotalAmount(totalAmount);
-	    Order savedOrder = orderRepository.save(order);
+		order.setTotalAmount(totalAmount);
+		Order savedOrder = orderRepository.save(order);
 
-	    return savedOrder;
+		return savedOrder;
 	}
-	
-	public Order updateOrderStatus(Long orderId, OrderStatus status) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found with order id: " + orderId));
 
-        order.setStatus(status);
-        return orderRepository.save(order);
+	public Order updateOrderStatus(Long orderId, OrderStatus status) {
+		Order order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new RuntimeException("Order not found with order id: " + orderId));
+
+		order.setStatus(status);
+		return orderRepository.save(order);
+	}
+
+	@Transactional(readOnly = true)
+	public List<Order> getOrdersBySessionId(String sessionId) {
+		return orderRepository.findBySessionId(sessionId);
+	}
+
+	public Order placeOrder(String sessionId, Long userId) {
+		List<CartItem> cartItems = cartRepository.findBySessionId(sessionId);
+
+		if (cartItems.isEmpty()) {
+			throw new RuntimeException("Order failed: no items found in the cart for this session.");
+		}
+
+		Order order = getOrderObject(sessionId, userId);
+
+		for (CartItem cartItem : cartItems) {
+			order.getOrderItems().add(mapToOrderItem(cartItem, order));
+		}
+
+		order.setTotalAmount(order.calculateTotalOrderPrice());
+		Order savedOrder = orderRepository.save(order);
+		cartRepository.deleteBySessionId(sessionId);
+
+		return savedOrder;
+	}
+
+	@Transactional(readOnly = true)
+    public List<Order> getOrdersByUserId(Long userId) {
+        return orderRepository.findByUserId(userId);
     }
 	
-	 public Order placeOrder(String sessionId, Long userId) {
-	        List<CartItem> cartItems = cartRepository.findBySessionId(sessionId);
+	private OrderItem mapToOrderItem(CartItem cartItem, Order order) {
+		OrderItem orderItem = new OrderItem();
+		orderItem.setOrder(order);
+		orderItem.setBook(cartItem.getBook());
+		orderItem.setQuantity(cartItem.getQuantity());
+		return orderItem;
+	}
 
-	        if (cartItems.isEmpty()) {
-	            throw new RuntimeException("Order failed: no items found in the cart for this session.");
-	        }
-
-	        Order order = getOrderObject(sessionId, userId);
-
-	        for (CartItem cartItem : cartItems) {
-	            order.getOrderItems().add(mapToOrderItem(cartItem, order));
-	        }
-
-	        order.setTotalAmount(order.calculateTotalOrderPrice());
-	        Order savedOrder = orderRepository.save(order);
-	        cartRepository.deleteBySessionId(sessionId);
-
-	        return savedOrder;
-	    }
-
-	    private OrderItem mapToOrderItem(CartItem cartItem, Order order) {
-	        OrderItem orderItem = new OrderItem();
-	        orderItem.setOrder(order);
-	        orderItem.setBook(cartItem.getBook());
-	        orderItem.setQuantity(cartItem.getQuantity());
-	        return orderItem;
-	    }
-
-
-		private Order getOrderObject(String sessionId, Long userId) {
-			Order order = new Order();
-	        order.setSessionId(sessionId);
-	        order.setUserId(userId);
-	        order.setStatus(OrderStatus.PENDING);
-	        order.setOrderDate(LocalDateTime.now());
-			return order;
-		}
+	private Order getOrderObject(String sessionId, Long userId) {
+		Order order = new Order();
+		order.setSessionId(sessionId);
+		order.setUserId(userId);
+		order.setStatus(OrderStatus.PENDING);
+		order.setOrderDate(LocalDateTime.now());
+		return order;
+	}
 }
