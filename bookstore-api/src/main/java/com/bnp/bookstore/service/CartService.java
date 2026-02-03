@@ -1,6 +1,5 @@
 package com.bnp.bookstore.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,12 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bnp.bookstore.model.Book;
 import com.bnp.bookstore.model.CartItem;
-import com.bnp.bookstore.model.Order;
-import com.bnp.bookstore.model.OrderItem;
-import com.bnp.bookstore.model.OrderStatus;
 import com.bnp.bookstore.repository.BookRepository;
 import com.bnp.bookstore.repository.CartRepository;
-import com.bnp.bookstore.repository.OrderRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +21,6 @@ public class CartService {
     private static final String ITEM_IN_THE_CART_NOT_FOUND_WITH_ID = "Item in the cart not found with id: ";
 	private final CartRepository cartRepository;
 	private final BookRepository bookRepository;
-	private final OrderRepository orderRepository;
 
     @Transactional(readOnly = true)
     public List<CartItem> getCartItems(String sessionId) {
