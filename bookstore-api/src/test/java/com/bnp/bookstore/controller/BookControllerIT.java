@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -17,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,13 @@ class BookControllerIT {
 
     @Autowired
     private ObjectMapper objectMapper;
+    
+    private Book testBook;
+
+    @BeforeEach
+    void setUp() {
+    	testBook = new Book(1L,"New Book", "New Author", 10.50);
+    }
 
     @Test
     @WithMockUser
@@ -105,6 +114,23 @@ class BookControllerIT {
 
         verify(bookService).findBookById(bookId);
         verify(bookService, never()).deleteBook(any());
+    }
+    
+    @Test
+    @WithMockUser
+    @DisplayName("should return book by book id")
+    void shouldReturnBookById() throws Exception {
+
+        when(bookService.findBookById(1L)).thenReturn(Optional.of(testBook));
+
+        mockMvc.perform(get("/api/books/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("New Book"))
+                .andExpect(jsonPath("$.author").value("New Author"))
+                .andExpect(jsonPath("$.price").value(10.50));
+
+        verify(bookService, times(1)).findBookById(1L);
     }
 
 
