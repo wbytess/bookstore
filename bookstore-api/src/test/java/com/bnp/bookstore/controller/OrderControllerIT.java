@@ -1,5 +1,6 @@
 package com.bnp.bookstore.controller;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -11,6 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -95,4 +98,19 @@ class OrderControllerIT {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    @WithMockUser
+    @DisplayName("Should retrieve orders for a given session")
+    void shouldRetrieveOrdersBySessionId() throws Exception {
+        List<Order> orders = Arrays.asList(testOrder);
+        when(orderService.getOrdersBySessionId(anyString())).thenReturn(orders);
+
+        mockMvc.perform(get("/api/orders/session")
+                        .header("X-Session-Id", SESSION_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].totalAmount").value(ORDER_TOTAL));
+
+        verify(orderService).getOrdersBySessionId(anyString());
+    }
 }
