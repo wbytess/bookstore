@@ -28,5 +28,23 @@ class OrderTest {
         assertEquals(1, order.getOrderItems().size());
         assertEquals(2, order.getOrderItems().get(0).getQuantity());
     }
+    
+    @Test
+    @DisplayName("should calculate total price for an order with two books")
+    void shouldCalculateTotalPriceForAnOrder() {
+    	
+    	Book book = new Book(1L, "New Book", "Author", 10.00);
+        OrderItem item = new OrderItem();
+        item.setBook(book);
+        item.setQuantity(2);
+
+        List<OrderItem> items = new ArrayList<>();
+        items.add(item);
+
+        Order order = new Order();
+        order.setOrderItems(items);
+        
+        assertEquals(20, order.calculateTotalOrderPrice(), 0.01);
+    }
 
 }
