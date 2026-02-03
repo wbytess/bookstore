@@ -1,13 +1,18 @@
 package com.bnp.bookstore.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -61,4 +66,29 @@ class BookControllerIT {
 
         verify(bookService).saveBook(any(Book.class));
     }
+    
+    @Test
+    @WithMockUser
+    @DisplayName("should update existing book and return updated book")
+    void shouldUpdateBook() throws Exception {
+
+        Book updatedBook = new Book(1L, "Updated Name", "Updated Author", 59.99);
+        when(bookService.saveBook(any(Book.class))).thenReturn(updatedBook);
+
+        mockMvc.perform(put("/api/books/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedBook)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Updated Name"))
+                .andExpect(jsonPath("$.author").value("Updated Author"))
+                .andExpect(jsonPath("$.price").value(59.99));
+
+        verify(bookService, times(1)).saveBook(any(Book.class));
+    }
+
+    
+
+
 }
