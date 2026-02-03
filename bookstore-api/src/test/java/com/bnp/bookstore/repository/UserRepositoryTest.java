@@ -24,6 +24,7 @@ class UserRepositoryTest {
 	private static final String TEST_EMAIL = "test@example.com";
 	private static final String TESTUSER = "testuser";
 	private static final String DEV_USER = "devuser";
+	private static final String DEV_EMAIL = "dev@example.com";
 
 	@Autowired
     private UserRepository userRepository;
@@ -66,6 +67,17 @@ class UserRepositoryTest {
         assertFalse(notExists);
     }
     
+    @Test
+    @DisplayName("given email when checking existence then true or false is returned")
+    void givenEmailWhenCheckingExistenceThenCorrectResultIsReturned() {
+    	createUser(TESTUSER, TEST_EMAIL);
+
+        boolean exists = userRepository.existsByEmail(TEST_EMAIL);
+        boolean notExists = userRepository.existsByEmail(DEV_EMAIL);
+
+        assertTrue(exists);
+        assertFalse(notExists);
+    }
     private User createUser(String username, String email) {
         User user = new User();
         user.setUsername(username);
