@@ -1,0 +1,23 @@
+.AllBooks {
+  padding: 1rem;
+  border-top: 1px solid #ccc;
+}
+
+.AllBooks-title {
+  margin-bottom: 0.5rem;
+}
+
+.AllBooks-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.AllBooks-item {
+  margin-bottom: 0.25rem;
+}
+
+.AllBooks-loading,
+.AllBooks-empty {
+  font-style: italic;
+  color: #666;
+}
