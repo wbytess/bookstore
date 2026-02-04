@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/books")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")//Restrict CORS to localhost frontend
+//@CrossOrigin(origins = "*")//Restrict CORS to localhost frontend
 public class BookController {
 
 	private final BookService bookService;

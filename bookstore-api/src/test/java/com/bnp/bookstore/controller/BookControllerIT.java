@@ -6,7 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+//import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -27,7 +27,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+//import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -98,7 +98,7 @@ class BookControllerIT {
 	}
 
 	@Test
-	@WithMockUser
+	//@WithMockUser
 	@DisplayName("Create a new book and return 201 with book payload")
 	void createBook_ShouldReturnCreated() throws Exception {
 		Book requestBook = buildNewBook();
@@ -107,7 +107,9 @@ class BookControllerIT {
 		when(bookService.saveBook(any(Book.class))).thenReturn(savedBook);
 
 		ResultActions result = mockMvc
-				.perform(post(BASE_API).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+				.perform(post(BASE_API)
+						//.with(csrf())
+						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(requestBook)))
 				.andExpect(status().isCreated()).andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
@@ -116,13 +118,14 @@ class BookControllerIT {
 	}
 
 	@Test
-	@WithMockUser
+	//@WithMockUser
 	@DisplayName("Update existing book and return updated book")
 	void updateBook_ShouldReturnUpdatedBook() throws Exception {
 		Book updatedBook = buildUpdatedBook();
 		when(bookService.saveBook(any(Book.class))).thenReturn(updatedBook);
 
-		ResultActions result = mockMvc.perform(put(BASE_API + "/{id}", BOOK_ID_1).with(csrf())
+		ResultActions result = mockMvc.perform(put(BASE_API + "/{id}", BOOK_ID_1)
+				//.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(updatedBook)))
 				.andExpect(status().isOk());
 
@@ -131,19 +134,21 @@ class BookControllerIT {
 	}
 
 	@Test
-	@WithMockUser
+	//@WithMockUser
 	@DisplayName("Return 404 when deleting non-existent book")
 	void deleteNonExistentBook_ShouldReturn404() throws Exception {
 		when(bookService.findBookById(BOOK_ID_2)).thenReturn(Optional.empty());
 
-		mockMvc.perform(delete(BASE_API + "/{id}", BOOK_ID_2).with(csrf())).andExpect(status().isNotFound());
+		mockMvc.perform(delete(BASE_API + "/{id}", BOOK_ID_2)
+				//.with(csrf())
+				).andExpect(status().isNotFound());
 
 		verify(bookService).findBookById(BOOK_ID_2);
 		verify(bookService, never()).deleteBook(any());
 	}
 
 	@Test
-	@WithMockUser
+	//@WithMockUser
 	@DisplayName("Return book by its ID")
 	void getBookById_ShouldReturnBook() throws Exception {
 		when(bookService.findBookById(BOOK_ID_1)).thenReturn(Optional.of(testBook1));
@@ -155,7 +160,7 @@ class BookControllerIT {
 	}
 
 	@Test
-	@WithMockUser
+	//@WithMockUser
 	@DisplayName("Return all available books")
 	void getAllBooks_ShouldReturnList() throws Exception {
 		List<Book> books = Arrays.asList(testBook1, testBook2);

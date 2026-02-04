@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+//import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
+//import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.bnp.bookstore.model.Order;
@@ -60,13 +60,13 @@ class OrderControllerIT {
     }
 
     @Test
-    @WithMockUser
+    //@WithMockUser
     @DisplayName("Should create a new order for a session")
     void shouldCreateNewOrder() throws Exception {
         when(orderService.placeOrder(anyString(), any())).thenReturn(testOrder);
 
         mockMvc.perform(post("/api/orders")
-                        .with(csrf())
+                       // .with(csrf())
                         .header("X-Session-Id", SESSION_ID))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(ORDER_ID))
@@ -77,7 +77,7 @@ class OrderControllerIT {
     }
 
     @Test
-    @WithMockUser
+   // @WithMockUser
     @DisplayName("Should retrieve an order by ID")
     void shouldRetrieveOrderById() throws Exception {
         when(orderService.getOrderById(ORDER_ID)).thenReturn(Optional.of(testOrder));
@@ -91,7 +91,7 @@ class OrderControllerIT {
     }
 
     @Test
-    @WithMockUser
+    //@WithMockUser
     @DisplayName("Should return 404 when order does not exist")
     void shouldReturnNotFoundForMissingOrder() throws Exception {
         when(orderService.getOrderById(INVALID_ORDER_ID)).thenReturn(Optional.empty());
@@ -101,7 +101,7 @@ class OrderControllerIT {
     }
 
     @Test
-    @WithMockUser
+    //@WithMockUser
     @DisplayName("Should retrieve orders for a given session")
     void shouldRetrieveOrdersBySessionId() throws Exception {
         List<Order> orders = Arrays.asList(testOrder);
@@ -117,7 +117,7 @@ class OrderControllerIT {
     }
 
     @Test
-    @WithMockUser
+    //@WithMockUser
     @DisplayName("Should retrieve all orders")
     void shouldRetrieveAllOrders() throws Exception {
         List<Order> orders = Arrays.asList(testOrder);
@@ -131,7 +131,7 @@ class OrderControllerIT {
     }
 
     @Test
-    @WithMockUser
+    //@WithMockUser
     @DisplayName("Should update the status of an order")
     void shouldUpdateOrderStatus() throws Exception {
         testOrder.setStatus(OrderStatus.COMPLETED);
@@ -139,7 +139,7 @@ class OrderControllerIT {
                 .thenReturn(testOrder);
 
         mockMvc.perform(put("/api/orders/" + ORDER_ID + "/status")
-                        .with(csrf())
+                       // .with(csrf())
                         .param("status", "COMPLETED"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("COMPLETED"));
@@ -148,14 +148,15 @@ class OrderControllerIT {
     }
 
     @Test
-    @WithMockUser
+    //@WithMockUser
     @DisplayName("Should cancel an order")
     void shouldCancelOrder() throws Exception {
         testOrder.setStatus(OrderStatus.CANCELLED);
         when(orderService.updateOrderStatus(ORDER_ID, OrderStatus.CANCELLED)).thenReturn(testOrder);
 
         mockMvc.perform(put("/api/orders/" + ORDER_ID + "/cancel")
-                        .with(csrf()))
+                        //.with(csrf())
+                        )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("CANCELLED"));
 
