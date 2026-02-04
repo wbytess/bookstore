@@ -1,17 +1,30 @@
 package com.bnp.bookstore.controller;
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.bnp.bookstore.dto.AddToCartRequest;
 import com.bnp.bookstore.model.CartItem;
 import com.bnp.bookstore.service.CartService;
 
-import java.util.List;
-import java.util.UUID;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping(CartController.BASE_API)
@@ -59,7 +72,17 @@ public class CartController {
 
         String effectiveSessionId = resolveSessionId(sessionId);
         Double total = cartService.getCartTotal(effectiveSessionId);
-        return ResponseEntity.ok(total);
+        return ResponseEntity.ok(roundToTwoDecimalPlaces(total));
+    }
+
+    /**
+     * Rounds a double value to 2 decimal places using HALF_UP rounding mode.
+     */
+    private Double roundToTwoDecimalPlaces(Double value) {
+        if (value == null) return 0.0;
+        return BigDecimal.valueOf(value)
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 
     @PutMapping(ID_PATH)
