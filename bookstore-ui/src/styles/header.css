@@ -1,0 +1,21 @@
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background-color: #f1f1f1;
+}
+
+.header-title {
+  margin: 0;
+}
+
+.header-nav {
+  display: flex;
+  gap: 12px;
+}
+
+.header-button {
+  padding: 6px 12px;
+  cursor: pointer;
+}
