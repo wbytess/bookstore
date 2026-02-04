@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { getSessionId } from "../utils/session";
 import "../styles/allbooks.css";
 
 export default function AllBooks() {
@@ -25,11 +26,13 @@ export default function AllBooks() {
 
   const handleAddToCart = (bookId) => {
     const quantity = quantities[bookId] || 1;
+    const sessionId = getSessionId();
 
     fetch("http://localhost:8080/api/cart", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-Session-Id": sessionId, // send session header
       },
       body: JSON.stringify({ bookId, quantity }),
     })
