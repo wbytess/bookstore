@@ -1,0 +1,45 @@
+.allbooks {
+  padding: 1rem;
+  border-top: 1px solid #ccc;
+}
+
+
+.allbooks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.allbooks-item {
+  border: 1px solid #ccc;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.allbooks-name {
+  flex: 2;
+  margin: 0;
+}
+
+.allbooks-author {
+  flex: 1;
+  margin: 0;
+}
+
+.allbooks-price {
+  flex: 1;
+  margin: 0;
+}
+
+.allbooks-quantity {
+  width: 60px;
+  padding: 4px;
+}
+
+.allbooks-add-button {
+  padding: 6px 12px;
+  cursor: pointer;
+}
