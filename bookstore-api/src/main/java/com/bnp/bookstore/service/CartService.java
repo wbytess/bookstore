@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bnp.bookstore.exception.ResourceNotFoundException;
 import com.bnp.bookstore.model.Book;
 import com.bnp.bookstore.model.CartItem;
 import com.bnp.bookstore.repository.BookRepository;
@@ -37,7 +38,7 @@ public class CartService {
 
     public CartItem updateCartItemQuantity(Long cartItemId, Integer quantity) {
         CartItem cartItem = cartRepository.findById(cartItemId)
-                .orElseThrow(() -> new RuntimeException(ITEM_IN_THE_CART_NOT_FOUND_WITH_ID + cartItemId));
+                .orElseThrow(() -> new ResourceNotFoundException(ITEM_IN_THE_CART_NOT_FOUND_WITH_ID + cartItemId));
 
         cartItem.setQuantity(quantity);
         return cartRepository.save(cartItem);
@@ -54,7 +55,7 @@ public class CartService {
     public CartItem addOrUpdateCartItem(String sessionId, Long bookId, Integer quantity) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() ->
-                        new RuntimeException("Book not found with id: " + bookId));
+                        new ResourceNotFoundException(ITEM_IN_THE_CART_NOT_FOUND_WITH_ID + bookId));
 
         Optional<CartItem> existingCartItem =
                 cartRepository.findBySessionIdAndBookId(sessionId, bookId);
