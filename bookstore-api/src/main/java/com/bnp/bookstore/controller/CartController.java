@@ -29,7 +29,13 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping(CartController.BASE_API)
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(
+	    origins = "http://localhost:5173",
+	    allowedHeaders = {
+	        "Content-Type",
+	        "X-Session-Id"
+	    }
+	)
 public class CartController {
 
     public static final String BASE_API = "/api/cart";
@@ -59,7 +65,7 @@ public class CartController {
 
     @GetMapping
     public ResponseEntity<List<CartItem>> getCartItems(
-            @RequestHeader(value = SESSION_HEADER, required = false) String sessionId) {
+            @RequestHeader(SESSION_HEADER) String sessionId) {
 
         String effectiveSessionId = resolveSessionId(sessionId);
         List<CartItem> items = cartService.getCartItems(effectiveSessionId);
