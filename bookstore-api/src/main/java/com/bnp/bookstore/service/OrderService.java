@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bnp.bookstore.exception.EmptyCartException;
 import com.bnp.bookstore.model.CartItem;
 import com.bnp.bookstore.model.Order;
 import com.bnp.bookstore.model.OrderItem;
@@ -62,7 +63,7 @@ public class OrderService {
 		List<CartItem> cartItems = cartRepository.findBySessionId(sessionId);
 
 		if (cartItems.isEmpty()) {
-			throw new RuntimeException("Order failed: no items found in the cart for this session.");
+			throw new EmptyCartException("Order failed: no items found in the cart for this session.");
 		}
 
 		Order order = getOrderObject(sessionId, userId);
