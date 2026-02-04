@@ -1,5 +1,8 @@
 package com.bnp.bookstore.model;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -47,9 +50,14 @@ public class CartItem {
     }
 
     public Double getSubtotal() {
-        if (book != null && book.getPrice() != null && quantity != null) {
-            return book.getPrice() * quantity;
+        if (book == null || book.getPrice() == null || quantity == null) {
+            return 0.0;
         }
-        return 0.0;
+
+        double subtotal = book.getPrice() * quantity;
+        return BigDecimal.valueOf(subtotal)
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
     }
+
 }
